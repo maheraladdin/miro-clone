@@ -73,4 +73,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  :root,
+  html,
+  body {
+    @apply h-full;
+  }
 }
