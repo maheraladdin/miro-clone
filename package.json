@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "add": "npx shadcn-ui@latest add"
+    "add": "npx shadcn-ui@latest add",
+    "convex": "npx convex dev"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.29.5",
+    "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tooltip": "^1.0.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "convex": "^1.8.0",
