@@ -3,11 +3,13 @@
 import qs from "query-string";
 import { Search } from "lucide-react";
 import { useDebounceValue } from "usehooks-ts";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 export function SearchInput() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const favorites = searchParams.get("favorites");
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue("", 500);
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +22,7 @@ export function SearchInput() {
         url: "/",
         query: {
           search: debouncedSearch,
+          favorites,
         },
       },
       { skipEmptyString: true, skipNull: true },
