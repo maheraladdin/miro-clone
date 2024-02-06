@@ -9,7 +9,7 @@ interface ApiMutationReturnType<T extends FunctionReference<"mutation">> {
 
 /**
  * @description A hook to use a mutation from the API
- * @param mutation
+ * @params mutation
  */
 export function useApiMutation<Mutation extends FunctionReference<"mutation">>(
   mutation: Mutation,
