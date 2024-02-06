@@ -25,7 +25,7 @@ type NewBoardButtonProps = {
   disabled?: boolean;
 };
 
-const titleSchema = z.object({
+const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title is too long"),
 });
 
@@ -33,7 +33,7 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
   const { mutate, pending } = useApiMutation(api.board.create);
   const [isOpened, setIsOpened] = useState<boolean>(false);
   const form = useForm({
-    resolver: zodResolver(titleSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
     },
@@ -41,8 +41,8 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
 
   const { register, handleSubmit, reset } = form;
 
-  const onSubmit = async () => {
-    const title = "";
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const title = values.title.trim();
     await mutate({ orgId, title })
       .then(() => {
         toast.success(`Your board "${title}" created successfully! 🎉`);
@@ -68,9 +68,9 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
       <DialogTrigger
         disabled={pending || disabled}
         className={cn(
-          "col-span-1 flex aspect-[100/127] flex-col items-center justify-center rounded-lg bg-amber-300 py-6 hover:bg-amber-500",
+          "col-span-1 flex aspect-[100/127] flex-col items-center justify-center rounded-lg bg-amber-500 py-6 hover:bg-amber-600",
           (pending || disabled) &&
-            "cursor-not-allowed opacity-75 hover:bg-amber-300",
+            "cursor-not-allowed opacity-75 hover:bg-amber-500",
         )}
         role={"button"}
         onClick={() => setIsOpened(true)}
