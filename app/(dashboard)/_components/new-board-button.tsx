@@ -1,7 +1,10 @@
 "use client";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Dialog,
@@ -10,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Form, FormField, FormMessage, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
@@ -21,36 +25,46 @@ type NewBoardButtonProps = {
   disabled?: boolean;
 };
 
+const titleSchema = z.object({
+  title: z.string().min(1, "Title is required").max(100, "Title is too long"),
+});
+
 export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
   const { mutate, pending } = useApiMutation(api.board.create);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [isOpened, setIsOpened] = useState<boolean>(false);
+  const form = useForm({
+    resolver: zodResolver(titleSchema),
+    defaultValues: {
+      title: "",
+    },
+  });
 
-  const onClick = async () => {
-    if (inputRef.current) {
-      const title = inputRef.current.value;
-      if (!title) return;
-      await mutate({ orgId, title })
-        .then(() => {
-          toast.success(`Your board "${title}" created successfully! 🎉`);
-        })
-        .catch(() => {
-          toast.error(`Failed to create board "${title}"! 😔`);
-        })
-        .finally(() => {
-          setIsOpened(false);
-        });
-    }
+  const { register, handleSubmit, reset } = form;
+
+  const onSubmit = async () => {
+    const title = "";
+    await mutate({ orgId, title })
+      .then(() => {
+        toast.success(`Your board "${title}" created successfully! 🎉`);
+      })
+      .catch(() => {
+        toast.error(`Failed to create board "${title}"! 😔`);
+      })
+      .finally(() => {
+        setIsOpened(false);
+        reset();
+      });
   };
 
-  const onKeyUp = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      await onClick();
+  const onOpenChange = () => {
+    if (isOpened) {
+      reset();
     }
+    setIsOpened(!isOpened);
   };
 
   return (
-    <Dialog open={isOpened} onOpenChange={() => isOpened && setIsOpened(false)}>
+    <Dialog open={isOpened} onOpenChange={onOpenChange}>
       <DialogTrigger
         disabled={pending || disabled}
         className={cn(
@@ -71,18 +85,27 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
             <label htmlFor="newBoard"> Create a new board </label>
           </DialogTitle>
         </DialogHeader>
-        <div className={"space-y-6"}>
-          <Input
-            id={"newBoard"}
-            placeholder={"awesome board title"}
-            ref={inputRef}
-            onKeyUp={onKeyUp}
-            autoFocus
-          />
-          <Button disabled={pending} onClick={onClick}>
-            {pending ? "Creating..." : "Create Board"}
-          </Button>
-        </div>
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FormField
+              {...register("title")}
+              render={({ field }) => (
+                <FormItem className={"space-y-6"}>
+                  <Input
+                    {...field}
+                    id={"newBoard"}
+                    placeholder={"awesome board title"}
+                    autoFocus
+                  />
+                  <FormMessage />
+                  <Button variant={"happy"} type={"submit"} disabled={pending}>
+                    {pending ? "Creating..." : "Create Board"}
+                  </Button>
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
