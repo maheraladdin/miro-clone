@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 
-import { ConvexClientProvider } from "@/providers/convex-client-provider";
+import { ConvexClientProvider, ModalProvider } from "@/providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +23,7 @@ export default function RootLayout({
         <ConvexClientProvider>
           {children}
           <Toaster />
+          <ModalProvider />
         </ConvexClientProvider>
       </body>
     </html>

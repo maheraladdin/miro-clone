@@ -26,7 +26,10 @@ type NewBoardButtonProps = {
 };
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required").max(100, "Title is too long"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(60, "Title can't be longer than 60 characters"),
 });
 
 export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
@@ -41,26 +44,21 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
 
   const { register, handleSubmit, reset } = form;
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const title = values.title.trim();
-    await mutate({ orgId, title })
-      .then(() => {
-        toast.success(`Your board "${title}" created successfully! 🎉`);
-      })
-      .catch(() => {
-        toast.error(`Failed to create board "${title}"! 😔`);
-      })
-      .finally(() => {
-        setIsOpened(false);
-        reset();
-      });
-  };
-
   const onOpenChange = () => {
     if (isOpened) {
       reset();
     }
     setIsOpened(!isOpened);
+  };
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const title = values.title.trim();
+    toast.promise(mutate({ orgId, title }), {
+      loading: "Creating board...",
+      success: `Your board "${title}" created successfully! 🎉`,
+      error: `Failed to create board "${title}"! 😔`,
+    });
+    onOpenChange();
   };
 
   return (
@@ -98,9 +96,22 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
                     autoFocus
                   />
                   <FormMessage />
-                  <Button variant={"happy"} type={"submit"} disabled={pending}>
-                    {pending ? "Creating..." : "Create Board"}
-                  </Button>
+                  <div className={"flex justify-between"}>
+                    <Button
+                      type={"button"}
+                      variant={"secondary"}
+                      onClick={onOpenChange}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant={"happy"}
+                      type={"submit"}
+                      disabled={pending}
+                    >
+                      {pending ? "Creating..." : "Create Board"}
+                    </Button>
+                  </div>
                 </FormItem>
               )}
             />

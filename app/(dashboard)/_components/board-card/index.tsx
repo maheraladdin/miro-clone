@@ -1,15 +1,18 @@
 "use client";
-import { formatDistanceToNow } from "date-fns";
-import { useAuth } from "@clerk/nextjs";
-
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@clerk/nextjs";
+import { MoreHorizontal } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+import { Footer } from "./footer";
 import { Overlay } from "./overlay";
-import { Footer } from "@/app/(dashboard)/_components/board-card/footer";
+import { Actions } from "@/components/actions";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Id } from "@/convex/_generated/dataModel";
 
 type BoardCardProps = {
-  id: string;
+  id: Id<"boards">;
   title: string;
   authorName: string;
   authorId: string;
@@ -43,6 +46,19 @@ export function BoardCard({
         <div className={"relative flex-1 bg-amber-50"}>
           <Image src={imageUrl} alt={title} fill className={"object-fit"} />
           <Overlay />
+          <Actions id={id} title={title} side={"right"}>
+            <button
+              className={
+                "absolute right-1 top-1 px-1 opacity-0 outline-none transition-opacity group-hover:opacity-100 "
+              }
+            >
+              <MoreHorizontal
+                className={
+                  "text-white opacity-75 transition-opacity hover:opacity-100"
+                }
+              />
+            </button>
+          </Actions>
         </div>
         <Footer
           title={title}
