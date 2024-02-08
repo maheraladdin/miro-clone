@@ -11,15 +11,15 @@ type BoardListProps = {
   orgId: string;
   query: {
     search?: string;
-    favorites?: boolean;
+    favorites?: string;
   };
 };
 
 export function BoardList({ orgId, query }: BoardListProps) {
-  const data = useQuery(api.boards.get, { orgId });
+  const boards = useQuery(api.boards.get, { orgId, ...query });
   const id = useId();
 
-  if (data === undefined) {
+  if (boards === undefined) {
     return (
       <div>
         <h2 className={"text-3xl"}>
@@ -41,15 +41,15 @@ export function BoardList({ orgId, query }: BoardListProps) {
     );
   }
 
-  if (!data?.length && query.search) {
+  if (!boards?.length && query.search) {
     return <EmptySearch />;
   }
 
-  if (!data?.length && query.favorites) {
+  if (!boards?.length && query.favorites) {
     return <EmptyFavorites />;
   }
 
-  if (!data?.length) {
+  if (!boards?.length) {
     return <EmptyData />;
   }
 
@@ -64,7 +64,7 @@ export function BoardList({ orgId, query }: BoardListProps) {
         }
       >
         <NewBoardButton orgId={orgId} />
-        {data?.map((board) => (
+        {boards?.map((board) => (
           <BoardCard
             key={board._id}
             id={board._id}
@@ -74,7 +74,7 @@ export function BoardList({ orgId, query }: BoardListProps) {
             createdAt={board._creationTime}
             imageUrl={board.imageUrl}
             orgId={board.orgId}
-            isFavorite={false}
+            isFavorite={board.isFavorite}
           />
         ))}
       </div>

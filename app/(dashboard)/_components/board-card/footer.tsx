@@ -29,7 +29,11 @@ export function Footer({
         {authorLabel}, {createdAtLabel}
       </p>
       <button
-        onClick={onClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onClick();
+        }}
         disabled={disabled}
         className={cn(
           "absolute right-3 top-3 text-muted-foreground opacity-0 transition hover:text-amber-300 group-hover:opacity-100",

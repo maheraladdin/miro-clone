@@ -10,6 +10,9 @@ import { Overlay } from "./overlay";
 import { Actions } from "@/components/actions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Id } from "@/convex/_generated/dataModel";
+import { useApiMutation } from "@/hooks/use-api-mutation";
+import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 
 type BoardCardProps = {
   id: Id<"boards">;
@@ -36,6 +39,23 @@ export function BoardCard({
 
   const authorLabel = authorId === userId ? "You" : authorName;
   const createdAtLabel = formatDistanceToNow(createdAt, { addSuffix: true });
+
+  const { pending, mutate } = useApiMutation(api.board.toggleFavorites);
+
+  const onToggleFavorites = () => {
+    toast.promise(mutate({ id, orgId }), {
+      loading: !isFavorite
+        ? "adding board to favorites..."
+        : "removing board from favorites...",
+      success: !isFavorite
+        ? "Board added to favorites successfully 🌟"
+        : "Board removed from favorites successfully 🌟",
+      error: !isFavorite
+        ? "Failed to add board to favorites 😔"
+        : "Failed to remove board from favorites 😔",
+    });
+  };
+
   return (
     <Link href={`/board/${id}`}>
       <div
@@ -65,8 +85,8 @@ export function BoardCard({
           authorLabel={authorLabel}
           createdAtLabel={createdAtLabel}
           isFavorite={isFavorite}
-          onClick={() => {}}
-          disabled={false}
+          onClick={onToggleFavorites}
+          disabled={pending}
         />
       </div>
     </Link>

@@ -1,27 +1,32 @@
 "use client";
 import Image from "next/image";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useOrganization } from "@clerk/nextjs";
+
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { useOrganization } from "@clerk/nextjs";
 import { useApiMutation } from "@/hooks/use-api-mutation";
-import { toast } from "sonner";
+
+const title = "Create Board";
 
 export default function EmptyBoard() {
+  const router = useRouter();
   const { organization } = useOrganization();
   const { mutate, pending } = useApiMutation(api.board.create);
 
   const onClick = async () => {
     if (!organization) return;
-    await mutate({
-      orgId: organization.id,
-      title: "My first board",
-    })
-      .then(() => {
-        toast.success("Your first board created successfully! 🎉");
-      })
-      .catch(() => {
-        toast.error("Failed to create board! 😔");
-      });
+    toast.promise(
+      mutate({ orgId: organization.id, title }).then((id) => {
+        router.push(`/board/${id}`);
+      }),
+      {
+        loading: "Creating board...",
+        success: `Your board "${title}" created successfully! 🎉`,
+        error: `Failed to create board "${title}"! 😔`,
+      },
+    );
   };
 
   return (

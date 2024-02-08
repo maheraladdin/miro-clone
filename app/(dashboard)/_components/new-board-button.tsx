@@ -1,9 +1,10 @@
 "use client";
-import { toast } from "sonner";
-import { Plus } from "lucide-react";
-import { useState } from "react";
 import { z } from "zod";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -13,12 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Form, FormField, FormMessage, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { useApiMutation } from "@/hooks/use-api-mutation";
+import { Form, FormField, FormMessage, FormItem } from "@/components/ui/form";
 
 type NewBoardButtonProps = {
   orgId: string;
@@ -33,6 +34,7 @@ const formSchema = z.object({
 });
 
 export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
+  const router = useRouter();
   const { mutate, pending } = useApiMutation(api.board.create);
   const [isOpened, setIsOpened] = useState<boolean>(false);
   const form = useForm({
@@ -53,11 +55,16 @@ export function NewBoardButton({ orgId, disabled }: NewBoardButtonProps) {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const title = values.title.trim();
-    toast.promise(mutate({ orgId, title }), {
-      loading: "Creating board...",
-      success: `Your board "${title}" created successfully! 🎉`,
-      error: `Failed to create board "${title}"! 😔`,
-    });
+    toast.promise(
+      mutate({ orgId, title }).then((id) => {
+        router.push(`/board/${id}`);
+      }),
+      {
+        loading: "Creating board...",
+        success: `Your board "${title}" created successfully! 🎉`,
+        error: `Failed to create board "${title}"! 😔`,
+      },
+    );
     onOpenChange();
   };
 
