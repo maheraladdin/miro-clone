@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 const images = Array(10)
   .fill("/placeholders/")
@@ -115,5 +115,15 @@ export const toggleFavorites = mutation({
       boardId: args.id,
       orgId: args.orgId,
     });
+  },
+});
+
+export const get = query({
+  args: {
+    id: v.id("boards"),
+  },
+  handler: async (ctx, args) => {
+    const board = await ctx.db.get(args.id);
+    return board;
   },
 });

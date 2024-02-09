@@ -1,7 +1,7 @@
-import { Info } from "@/app/board/[boardId]/_components/info";
-import { Participants } from "@/app/board/[boardId]/_components/participants";
-import { Toolbar } from "@/app/board/[boardId]/_components/toolbar";
 import { Id } from "@/convex/_generated/dataModel";
+import { Info } from "@/app/board/[boardId]/_components/info";
+import { Toolbar } from "@/app/board/[boardId]/_components/toolbar";
+import { Participants } from "@/app/board/[boardId]/_components/participants";
 
 type CanvasProps = {
   boardId: Id<"boards">;
