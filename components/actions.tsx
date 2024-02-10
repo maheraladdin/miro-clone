@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { toast } from "sonner";
 import { Link2, Pencil, Trash2 } from "lucide-react";
 import { useCopyToClipboard } from "usehooks-ts";
@@ -18,6 +18,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { Button } from "@/components/ui/button";
 import { useRenameModal } from "@/hooks/use-rename-modal";
+import { useRouter } from "next/navigation";
 
 type ActionsProps = {
   children: React.ReactNode;
@@ -34,10 +35,11 @@ export function Actions({
   id,
   title,
 }: ActionsProps) {
+  const router = useRouter();
   const [_, copy] = useCopyToClipboard();
   const { pending, mutate } = useApiMutation(api.board.remove);
 
-  const { open } = useRenameModal();
+  const open = useRenameModal((state) => state.open);
 
   const handleCopy = () => {
     toast.promise(copy(`${window.location.origin}/board/${id}`), {
@@ -53,6 +55,7 @@ export function Actions({
       success: "Board deleted successfully 🗑",
       error: "Failed to delete board 😔",
     });
+    router.push("/");
   };
 
   return (

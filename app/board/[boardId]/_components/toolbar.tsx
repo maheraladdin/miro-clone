@@ -29,7 +29,7 @@ export function Toolbar() {
   );
 }
 
-Toolbar.Skeleton = function ToolbarSkeleton() {
+export function ToolbarSkeleton() {
   return (
     <div
       className={
@@ -48,4 +48,4 @@ Toolbar.Skeleton = function ToolbarSkeleton() {
       />
     </div>
   );
-};
+}

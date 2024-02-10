@@ -11,7 +11,7 @@ const liveblocks = new Liveblocks({
 });
 
 export async function POST(request: Request) {
-  const authorization = auth();
+  const authorization = await auth();
   const user = await currentUser();
 
   if (!authorization || !user) {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   }
 
   const userInfo = {
-    name: user.username || "Anonymous",
+    name: user.firstName || "Teammeate",
     picture: user.imageUrl,
   };
 

@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { Loader } from "lucide-react";
 
-import { Info } from "@/app/board/[boardId]/_components/info";
-import { Toolbar } from "@/app/board/[boardId]/_components/toolbar";
-import { Participants } from "@/app/board/[boardId]/_components/participants";
+import { InfoSkeleton } from "@/app/board/[boardId]/_components/info";
+import { ToolbarSkeleton } from "@/app/board/[boardId]/_components/toolbar";
+import { ParticipantsSkeleton } from "@/app/board/[boardId]/_components/participants";
 
 export default function Loading({ canvas }: { canvas?: boolean }) {
   return (
@@ -17,9 +17,9 @@ export default function Loading({ canvas }: { canvas?: boolean }) {
           >
             <Loader className={"h-6 w-6 animate-spin"} />
           </div>
-          <Info.Skeleton />
-          <Participants.Skeleton />
-          <Toolbar.Skeleton />
+          <InfoSkeleton />
+          <ParticipantsSkeleton />
+          <ToolbarSkeleton />
         </>
       ) : (
         <Image
