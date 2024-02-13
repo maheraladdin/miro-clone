@@ -28,7 +28,7 @@ export function SearchInput() {
       { skipEmptyString: true, skipNull: true },
     );
     router.push(url);
-  }, [debouncedSearch, router]);
+  }, [debouncedSearch, router, favorites]);
   return (
     <div className={"relative w-full"}>
       <label htmlFor="search">
