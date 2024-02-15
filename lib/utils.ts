@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Camera } from "@/types/canvas";
+import { Camera, Color } from "@/types/canvas";
 
 const randomColors = [
   "#FF0000",
@@ -37,4 +37,14 @@ export function PointerEventToCanvasPoint(
     x: Math.round(e.clientX) - camera.x,
     y: Math.round(e.clientY) - camera.y,
   };
+}
+
+function rgbChannelToHexChannel(channel: number) {
+  return channel.toString(16).padStart(2, "0");
+}
+export function colorToCSS(color: Color) {
+  const red = rgbChannelToHexChannel(color.r);
+  const green = rgbChannelToHexChannel(color.g);
+  const blue = rgbChannelToHexChannel(color.b);
+  return `#${red}${green}${blue}`;
 }
