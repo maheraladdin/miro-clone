@@ -27,6 +27,7 @@ import {
 } from "@/liveblocks.config";
 import { LayerPreview } from "@/app/board/[boardId]/_components/layer-preview";
 import { useEventListener } from "usehooks-ts";
+import { SelectionBox } from "@/app/board/[boardId]/_components/selection-box";
 
 type CanvasProps = {
   boardId: Id<"boards">;
@@ -226,6 +227,7 @@ export const Canvas = ({ boardId }: CanvasProps) => {
               selectionColor={layerIdsToSelectionColors[layerId]}
             />
           ))}
+          <SelectionBox onResizeHandlePointerDown={() => {}} />
           <CursorsPresence />
         </g>
       </svg>
