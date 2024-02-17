@@ -8,7 +8,11 @@ import { Toolbar } from "./toolbar";
 import { Participants } from "./participants";
 import { Id } from "@/convex/_generated/dataModel";
 import { CursorsPresence } from "./cursors-presence";
-import { connectionIdColor, PointerEventToCanvasPoint } from "@/lib/utils";
+import {
+  connectionIdColor,
+  PointerEventToCanvasPoint,
+  resizeBounds,
+} from "@/lib/utils";
 import {
   Camera,
   CanvasMode,
@@ -16,6 +20,8 @@ import {
   Color,
   LayerType,
   Point,
+  Side,
+  XYWH,
 } from "@/types/canvas";
 import {
   useHistory,
@@ -51,32 +57,6 @@ export const Canvas = ({ boardId }: CanvasProps) => {
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
 
-  const UndoShortcut = useCallback(
-    (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (!canUndo) return;
-      if (e.key === "z" && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
-        e.preventDefault();
-        history.undo();
-      }
-    },
-    [history, canUndo],
-  );
-
-  const RedoShortcut = useCallback(
-    (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (!canRedo) return;
-      if (
-        (e.key === "y" && (e.metaKey || e.ctrlKey)) ||
-        (e.key === "z" && (e.metaKey || e.ctrlKey) && e.shiftKey)
-      ) {
-        history.redo();
-      }
-    },
-    [history, canRedo],
-  );
-
   const insertLayer = useMutation(
     (
       { storage, setMyPresence },
@@ -111,6 +91,68 @@ export const Canvas = ({ boardId }: CanvasProps) => {
     [lastUsedColor],
   );
 
+  const translateLayer = useMutation(
+    ({ storage, self }, point: Point) => {
+      if (canvasState.mode !== CanvasMode.Translating) return;
+
+      const offset = {
+        x: point.x - canvasState.current.x,
+        y: point.y - canvasState.current.y,
+      };
+
+      const liveLayers = storage.get("layers");
+      for (const id of self.presence.selection) {
+        const layer = liveLayers.get(id);
+        if (layer) {
+          layer.update({
+            x: layer.get("x") + offset.x,
+            y: layer.get("y") + offset.y,
+          });
+        }
+      }
+
+      setCanvasState({ mode: CanvasMode.Translating, current: point });
+    },
+    [canvasState],
+  );
+
+  const unSelectLayer = useMutation(({ self, setMyPresence }) => {
+    if (self.presence.selection.length <= 0) return;
+    setMyPresence({ selection: [] }, { addToHistory: true });
+  }, []);
+
+  const resizeLayer = useMutation(
+    ({ storage, self }, point: Point) => {
+      if (canvasState.mode !== CanvasMode.Resizing) return;
+
+      const bounds = resizeBounds(
+        canvasState.initialBounds,
+        canvasState.corner,
+        point,
+      );
+
+      const liveLayers = storage.get("layers");
+      const Layer = liveLayers.get(self.presence.selection[0]);
+
+      if (Layer) {
+        Layer.update(bounds);
+      }
+    },
+    [canvasState],
+  );
+
+  const onResizeHandlePointerDown = useCallback(
+    (corner: Side, initialBounds: XYWH) => {
+      history.pause();
+      setCanvasState({
+        mode: CanvasMode.Resizing,
+        initialBounds,
+        corner,
+      });
+    },
+    [history],
+  );
+
   const onWheel = useCallback(
     (e: React.WheelEvent) => {
       e.preventDefault();
@@ -128,9 +170,15 @@ export const Canvas = ({ boardId }: CanvasProps) => {
 
       const current = PointerEventToCanvasPoint(e, camera);
 
+      if (canvasState.mode === CanvasMode.Translating) {
+        translateLayer(current);
+      } else if (canvasState.mode === CanvasMode.Resizing) {
+        resizeLayer(current);
+      }
+
       setMyPresence({ cursor: current });
     },
-    [canvasState],
+    [canvasState, resizeLayer, camera],
   );
 
   const onPointerLeave = useMutation(
@@ -140,11 +188,27 @@ export const Canvas = ({ boardId }: CanvasProps) => {
     [canvasState],
   );
 
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (canvasState.mode === CanvasMode.Inserting) return;
+      // TODO: ADD CASE For Drawing
+      const point = PointerEventToCanvasPoint(e, camera);
+      setCanvasState({ mode: CanvasMode.Pressing, origin: point });
+    },
+    [camera, canvasState.mode],
+  );
+
   const onPointerUp = useMutation(
     ({}, e) => {
       const point = PointerEventToCanvasPoint(e, camera);
 
-      if (canvasState.mode === CanvasMode.Inserting) {
+      if (
+        canvasState.mode === CanvasMode.Pressing ||
+        canvasState.mode === CanvasMode.None
+      ) {
+        unSelectLayer();
+        setCanvasState({ mode: CanvasMode.None });
+      } else if (canvasState.mode === CanvasMode.Inserting) {
         insertLayer(canvasState.layerType, point);
       } else {
         setCanvasState({ mode: CanvasMode.None });
@@ -152,7 +216,7 @@ export const Canvas = ({ boardId }: CanvasProps) => {
 
       history.resume();
     },
-    [camera, canvasState, history, insertLayer],
+    [camera, canvasState, history, insertLayer, unSelectLayer],
   );
 
   const selections = useOthersMapped((other) => other.presence.selection);
@@ -192,8 +256,45 @@ export const Canvas = ({ boardId }: CanvasProps) => {
     return layerIdsToSelectionColors;
   }, [selections]);
 
+  const UndoShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      e.preventDefault();
+      if (!canUndo) return;
+      if (e.key === "z" && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
+        e.preventDefault();
+        history.undo();
+      }
+    },
+    [history, canUndo],
+  );
+
+  const RedoShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      e.preventDefault();
+      if (!canRedo) return;
+      if (
+        (e.key === "y" && (e.metaKey || e.ctrlKey)) ||
+        (e.key === "z" && (e.metaKey || e.ctrlKey) && e.shiftKey)
+      ) {
+        history.redo();
+      }
+    },
+    [history, canRedo],
+  );
+
+  // on shift + S keydown, deselect all layers
+  const deSelectShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "s" && e.shiftKey) {
+        unSelectLayer();
+      }
+    },
+    [unSelectLayer],
+  );
+
   useEventListener("keydown", UndoShortcut);
   useEventListener("keydown", RedoShortcut);
+  useEventListener("keydown", deSelectShortcut);
 
   return (
     <main className={"relative h-full w-full touch-none bg-neutral-100"}>
@@ -213,6 +314,7 @@ export const Canvas = ({ boardId }: CanvasProps) => {
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
         onPointerUp={onPointerUp}
+        onPointerDown={onPointerDown}
       >
         <g
           style={{
@@ -227,7 +329,7 @@ export const Canvas = ({ boardId }: CanvasProps) => {
               selectionColor={layerIdsToSelectionColors[layerId]}
             />
           ))}
-          <SelectionBox onResizeHandlePointerDown={() => {}} />
+          <SelectionBox onResizeHandlePointerDown={onResizeHandlePointerDown} />
           <CursorsPresence />
         </g>
       </svg>

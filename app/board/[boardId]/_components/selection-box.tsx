@@ -21,6 +21,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x - HANDLE_WIDTH / 2,
         y: bounds.y - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Top + Side.Left,
     },
     {
       cursor: cursors[1],
@@ -28,6 +29,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x + bounds.width / 2 - HANDLE_WIDTH / 2,
         y: bounds.y - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Top,
     },
     {
       cursor: cursors[2],
@@ -35,6 +37,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x + bounds.width - HANDLE_WIDTH / 2,
         y: bounds.y - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Top + Side.Right,
     },
     {
       cursor: cursors[3],
@@ -42,6 +45,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x - HANDLE_WIDTH / 2,
         y: bounds.y + bounds.height / 2 - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Left,
     },
     {
       cursor: cursors[3],
@@ -49,6 +53,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x + bounds.width - HANDLE_WIDTH / 2,
         y: bounds.y + bounds.height / 2 - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Right,
     },
     {
       cursor: cursors[2],
@@ -56,6 +61,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x - HANDLE_WIDTH / 2,
         y: bounds.y + bounds.height - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Bottom + Side.Left,
     },
     {
       cursor: cursors[1],
@@ -63,6 +69,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x + bounds.width / 2 - HANDLE_WIDTH / 2,
         y: bounds.y + bounds.height - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Bottom,
     },
     {
       cursor: cursors[0],
@@ -70,6 +77,7 @@ const boundsHandler = function (bounds: XYWH) {
         x: bounds.x + bounds.width - HANDLE_WIDTH / 2,
         y: bounds.y + bounds.height - HANDLE_WIDTH / 2,
       },
+      resizeSide: Side.Bottom + Side.Right,
     },
   ];
 };
@@ -105,23 +113,25 @@ export const SelectionBox = memo(
         />
         {isShowingHandles && (
           <>
-            {boundsHandler(bounds).map(({ cursor, transform: { x, y } }) => (
-              <rect
-                className={"fill-white stroke-blue-500 stroke-1"}
-                x={0}
-                y={0}
-                style={{
-                  cursor,
-                  transform: `translate(${x}px, ${y}px)`,
-                }}
-                width={HANDLE_WIDTH}
-                height={HANDLE_WIDTH}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
-                  // TODO: ADD RESIZE LOGIC
-                }}
-              />
-            ))}
+            {boundsHandler(bounds).map(
+              ({ cursor, resizeSide, transform: { x, y } }) => (
+                <rect
+                  className={"fill-white stroke-blue-500 stroke-1"}
+                  x={0}
+                  y={0}
+                  style={{
+                    cursor,
+                    transform: `translate(${x}px, ${y}px)`,
+                  }}
+                  width={HANDLE_WIDTH}
+                  height={HANDLE_WIDTH}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    onResizeHandlePointerDown(resizeSide, bounds);
+                  }}
+                />
+              ),
+            )}
           </>
         )}
       </>
