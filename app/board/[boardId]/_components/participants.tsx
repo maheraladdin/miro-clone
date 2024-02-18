@@ -14,7 +14,7 @@ export function Participants() {
   return (
     <div
       className={
-        "absolute right-2 top-2 flex h-12 items-center rounded-md bg-white p-3 shadow-md"
+        "absolute right-2 top-2 z-50 flex h-12 items-center rounded-md bg-white p-3 shadow-md"
       }
     >
       <div className={"flex gap-x-2"}>

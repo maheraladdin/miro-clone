@@ -45,7 +45,7 @@ export function Info({ boardId }: InfoProps) {
   return (
     <div
       className={
-        "absolute left-2 top-2 flex h-12 items-center rounded-md bg-white px-1.5 shadow-md"
+        "absolute left-2 top-2 z-50 flex h-12 items-center rounded-md bg-white px-1.5 shadow-md"
       }
     >
       <Hint label={"Go to boards"} side={"bottom"} sideOffset={10}>
