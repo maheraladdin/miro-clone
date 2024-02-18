@@ -1,5 +1,6 @@
 "use client";
 import { nanoid } from "nanoid";
+import { useEventListener } from "usehooks-ts";
 import { LiveObject } from "@liveblocks/client";
 import React, { useCallback, useState, useMemo } from "react";
 
@@ -32,8 +33,8 @@ import {
   useOthersMapped,
 } from "@/liveblocks.config";
 import { LayerPreview } from "@/app/board/[boardId]/_components/layer-preview";
-import { useEventListener } from "usehooks-ts";
 import { SelectionBox } from "@/app/board/[boardId]/_components/selection-box";
+import { SelectionTools } from "@/app/board/[boardId]/_components/selection-tool";
 
 type CanvasProps = {
   boardId: Id<"boards">;
@@ -308,8 +309,9 @@ export const Canvas = ({ boardId }: CanvasProps) => {
         canUndo={canUndo}
         canRedo={canRedo}
       />
+      <SelectionTools camera={camera} setLastUsedColor={setLastUsedColor} />
       <svg
-        className={"h-screen w-screen"}
+        className={"relative h-screen w-screen"}
         onWheel={onWheel}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
