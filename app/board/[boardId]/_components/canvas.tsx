@@ -34,7 +34,7 @@ import {
 } from "@/liveblocks.config";
 import { LayerPreview } from "@/app/board/[boardId]/_components/layer-preview";
 import { SelectionBox } from "@/app/board/[boardId]/_components/selection-box";
-import { SelectionTools } from "@/app/board/[boardId]/_components/selection-tool";
+import { SelectionTools } from "@/app/board/[boardId]/_components/selection-tools";
 
 type CanvasProps = {
   boardId: Id<"boards">;

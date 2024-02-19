@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Trash2 } from "lucide-react";
+import { BringToFront, SendToBack, Trash2 } from "lucide-react";
 
 import { Hint } from "@/components/hint";
 import { Camera, Color } from "@/types/canvas";
@@ -20,6 +20,51 @@ interface SelectionToolsProps {
 export const SelectionTools = memo(
   ({ camera, setLastUsedColor }: SelectionToolsProps) => {
     const selection = useSelf((me) => me.presence.selection);
+
+    const sendToBack = useMutation(
+      ({ storage }) => {
+        const liveLayersIds = storage.get("layerIds");
+        const indices: number[] = [];
+        const arr = liveLayersIds.toArray();
+
+        // loop through the selection and get the indices of the selected layers
+        for (let i = 0; i < arr.length; i++) {
+          if (selection.includes(arr[i])) {
+            indices.push(i);
+          }
+        }
+
+        // move the selected layers to the back
+        for (let i = 0; i < indices.length; i++) {
+          liveLayersIds.move(indices[i], i);
+        }
+      },
+      [selection],
+    );
+
+    const bringToFront = useMutation(
+      ({ storage }) => {
+        const liveLayersIds = storage.get("layerIds");
+        const indices: number[] = [];
+        const arr = liveLayersIds.toArray();
+
+        // loop through the selection and get the indices of the selected layers
+        for (let i = 0; i < arr.length; i++) {
+          if (selection.includes(arr[i])) {
+            indices.push(i);
+          }
+        }
+
+        // move the selected layers to the back
+        for (let i = indices.length - 1; i >= 0; i--) {
+          liveLayersIds.move(
+            indices[i],
+            arr.length - 1 - (indices.length - 1 - i),
+          );
+        }
+      },
+      [selection],
+    );
 
     const setFill = useMutation(
       ({ storage }, fill: Color) => {
@@ -55,6 +100,18 @@ export const SelectionTools = memo(
         }}
       >
         <ColorPicker onChange={setFill} />
+        <div className={"flex flex-col gap-y-0.5"}>
+          <Hint label={"Bring to front"}>
+            <Button variant={"board"} size={"icon"} onClick={bringToFront}>
+              <BringToFront />
+            </Button>
+          </Hint>
+          <Hint label={"Send to back"} side={"bottom"}>
+            <Button variant={"board"} size={"icon"} onClick={sendToBack}>
+              <SendToBack />
+            </Button>
+          </Hint>
+        </div>
         <div className="ml-2 flex items-center border-l border-neutral-200 pl-2">
           <Hint label="Delete">
             <Button variant="board" size="icon" onClick={deleteLayers}>
