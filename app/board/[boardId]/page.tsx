@@ -11,8 +11,10 @@ type BoardIdPageProps = {
 
 export default function BoardIdPage({ params: { boardId } }: BoardIdPageProps) {
   return (
+    <>
     <Room roomId={boardId} fallback={<Loading canvas />}>
       <Canvas boardId={boardId} />
     </Room>
+    </>
   );
 }
