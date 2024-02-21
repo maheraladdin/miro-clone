@@ -1,52 +1,30 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+
 import { Camera, Color, Layer, Point, Side, XYWH } from "@/types/canvas";
 
-const randomColors = [
-  "#FF0000",
-  "#00FF00",
-  "#0000FF",
-  "#FFFF00",
-  "#FF00FF",
-  "#00FFFF",
-  "#FFA500",
-  "#800080",
-  "#FFC0CB",
-  "#FFD700",
-  "#FF4500",
-  "#FF8C00",
-  "#FF1493",
-  "#FF69B4",
-  "#FF6347",
-  "#FF7F50",
-];
+const COLORS = ["#DC2626", "#D97706", "#059669", "#7C3AED", "#DB2777"];
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function connectionIdColor(connectionId: number) {
-  return randomColors[connectionId % randomColors.length];
+export function connectionIdColor(connectionId: number): string {
+  return COLORS[connectionId % COLORS.length];
 }
 
-export function PointerEventToCanvasPoint(
+export function pointerEventToCanvasPoint(
   e: React.PointerEvent,
   camera: Camera,
-): Camera {
+) {
   return {
     x: Math.round(e.clientX) - camera.x,
     y: Math.round(e.clientY) - camera.y,
   };
 }
 
-function rgbChannelToHexChannel(channel: number) {
-  return channel.toString(16).padStart(2, "0");
-}
 export function colorToCSS(color: Color) {
-  const red = rgbChannelToHexChannel(color.r);
-  const green = rgbChannelToHexChannel(color.g);
-  const blue = rgbChannelToHexChannel(color.b);
-  return `#${red}${green}${blue}`;
+  return `#${color.r.toString(16).padStart(2, "0")}${color.g.toString(16).padStart(2, "0")}${color.b.toString(16).padStart(2, "0")}`;
 }
 
 export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
@@ -58,22 +36,22 @@ export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
   };
 
   if ((corner & Side.Left) === Side.Left) {
-    result.x = Math.min(bounds.x + bounds.width, point.x);
+    result.x = Math.min(point.x, bounds.x + bounds.width);
     result.width = Math.abs(bounds.x + bounds.width - point.x);
   }
 
   if ((corner & Side.Right) === Side.Right) {
-    result.x = Math.min(bounds.x, point.x);
+    result.x = Math.min(point.x, bounds.x);
     result.width = Math.abs(point.x - bounds.x);
   }
 
   if ((corner & Side.Top) === Side.Top) {
-    result.y = Math.min(bounds.y + bounds.height, point.y);
+    result.y = Math.min(point.y, bounds.y + bounds.height);
     result.height = Math.abs(bounds.y + bounds.height - point.y);
   }
 
   if ((corner & Side.Bottom) === Side.Bottom) {
-    result.y = Math.min(bounds.y, point.y);
+    result.y = Math.min(point.y, bounds.y);
     result.height = Math.abs(point.y - bounds.y);
   }
 
@@ -115,4 +93,10 @@ export function findIntersectingLayersWithRectangle(
   }
 
   return ids;
+}
+
+export function getContrastingTextColor(color: Color) {
+  const luminance = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
+
+  return luminance > 182 ? "black" : "white";
 }
