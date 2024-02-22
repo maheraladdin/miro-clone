@@ -392,45 +392,27 @@ export const Canvas = ({ boardId }: CanvasProps) => {
     [setCanvasState, camera, history, canvasState.mode],
   );
 
-  const UndoShortcut = useCallback(
+  const shortcuts = useCallback(
     (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (!canUndo) return;
-      if (e.key === "z" && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
-        e.preventDefault();
-        history.undo();
+      switch (e.key.toLowerCase()) {
+        // on shift + S keydown, deselect all layers
+        case "s":
+          e.shiftKey && unselectLayers();
+          break;
+        case "z":
+          (e.metaKey || e.ctrlKey) && !e.shiftKey && history.undo();
+          (e.key === "y" && (e.metaKey || e.ctrlKey)) ||
+            (e.key === "z" &&
+              (e.metaKey || e.ctrlKey) &&
+              e.shiftKey &&
+              history.redo());
+          break;
       }
     },
-    [history, canUndo],
+    [unselectLayers, history],
   );
 
-  const RedoShortcut = useCallback(
-    (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (!canRedo) return;
-      if (
-        (e.key === "y" && (e.metaKey || e.ctrlKey)) ||
-        (e.key === "z" && (e.metaKey || e.ctrlKey) && e.shiftKey)
-      ) {
-        history.redo();
-      }
-    },
-    [history, canRedo],
-  );
-
-  // on shift + S keydown, deselect all layers
-  const deSelectShortcut = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "s" && e.shiftKey) {
-        unselectLayers();
-      }
-    },
-    [unselectLayers],
-  );
-
-  useEventListener("keydown", UndoShortcut);
-  useEventListener("keydown", RedoShortcut);
-  useEventListener("keydown", deSelectShortcut);
+  useEventListener("keydown", shortcuts);
 
   const layerIdsToColorSelection = useMemo(() => {
     const layerIdsToColorSelection: Record<string, string> = {};
