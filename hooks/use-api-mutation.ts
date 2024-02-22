@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { FunctionReference } from "@/node_modules/convex/src/server";
+import type { FunctionReference } from "@/node_modules/convex/src/server";
 
 interface ApiMutationReturnType<T extends FunctionReference<"mutation">> {
   pending: boolean;

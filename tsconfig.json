@@ -19,8 +19,11 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "target": "es2015",
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }
