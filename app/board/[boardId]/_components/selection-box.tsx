@@ -1,5 +1,6 @@
 "use client";
 import { memo } from "react";
+import { nanoid } from "nanoid";
 
 import { LayerType, Side, XYWH } from "@/types/canvas";
 import { useSelf, useStorage } from "@/liveblocks.config";
@@ -116,6 +117,7 @@ export const SelectionBox = memo(
             {boundsHandler(bounds).map(
               ({ cursor, resizeSide, transform: { x, y } }) => (
                 <rect
+                  key={nanoid()}
                   className={"fill-white stroke-blue-500 stroke-1"}
                   x={0}
                   y={0}

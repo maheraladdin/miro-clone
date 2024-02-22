@@ -6,7 +6,7 @@ import { BoardList } from "@/app/(dashboard)/_components/board-list";
 type DashboardPageProps = {
   searchParams: {
     search?: string;
-    favorites?: boolean;
+    favorites?: string;
   };
 };
 

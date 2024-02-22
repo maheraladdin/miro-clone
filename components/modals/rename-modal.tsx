@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useApiMutation } from "@/hooks/use-api-mutation";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   title: z
@@ -65,7 +65,7 @@ export default function RenameModal() {
     reset({
       title,
     });
-  }, [title]);
+  }, [title, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

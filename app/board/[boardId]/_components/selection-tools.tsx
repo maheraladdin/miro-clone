@@ -25,7 +25,7 @@ export const SelectionTools = memo(
       ({ storage }) => {
         const liveLayersIds = storage.get("layerIds");
         const indices: number[] = [];
-        const arr = liveLayersIds.toArray();
+        const arr = liveLayersIds.toImmutable();
 
         // loop through the selection and get the indices of the selected layers
         for (let i = 0; i < arr.length; i++) {
@@ -46,7 +46,7 @@ export const SelectionTools = memo(
       ({ storage }) => {
         const liveLayersIds = storage.get("layerIds");
         const indices: number[] = [];
-        const arr = liveLayersIds.toArray();
+        const arr = liveLayersIds.toImmutable();
 
         // loop through the selection and get the indices of the selected layers
         for (let i = 0; i < arr.length; i++) {
