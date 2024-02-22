@@ -55,7 +55,7 @@ export const Note = ({
         outline: selectionColor ? `1px solid ${selectionColor}` : "none",
         backgroundColor: fill ? colorToCSS(fill) : "#000",
       }}
-      className={"shadow-md drop-shadow-xl"}
+      className="shadow-md drop-shadow-xl"
     >
       <ContentEditable
         html={value || "Text"}
@@ -66,7 +66,7 @@ export const Note = ({
         )}
         style={{
           fontSize: calculateFontSize(width, height),
-          color: fill ? getContrastingTextColor(fill) : "#fff",
+          color: fill ? getContrastingTextColor(fill) : "#000",
         }}
       />
     </foreignObject>
