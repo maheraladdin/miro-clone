@@ -20,7 +20,7 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "target": "es2015",
+    "target": "es2016",
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true
   },
